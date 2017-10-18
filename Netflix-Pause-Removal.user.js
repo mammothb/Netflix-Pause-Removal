@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name        Netflix Pause Removal
 // @namespace   *://www.netflix.com
-// @match       *://www.netflix.com/watch/*
-// @version     1.3.0
+// @include     http://www.netflix.com/*
+// @include     https://www.netflix.com/*
+// @version     1.4.0
 // @grant       none
 // @description Automatically clicks "continue playing"
 // ==/UserScript==
