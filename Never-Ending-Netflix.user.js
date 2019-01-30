@@ -5,7 +5,8 @@
 // @include     https://www.netflix.com/*
 // @version     1.6.0
 // @grant       none
-// @description Automatically clicks "Continue Playing", "Skip Intro", and "Play Next Episode"
+// @description Automatically clicks "Continue Playing", "Skip Intro",
+//              and "Play Next Episode"
 // ==/UserScript==
 
 /**
@@ -15,6 +16,10 @@ function clickIfFound(button) {
   if (button) button.click();
 }
 
+/**
+ * Contains functions to get video duration and dimensions of the
+ * scrubber-bar. Contains functions to increment seek 1min or 5min.
+ */
 let netflixSeeker = function () {
   // used when the user is spamming ctrl/shift+arrow
   let seekTime = {
@@ -22,12 +27,14 @@ let netflixSeeker = function () {
     "to": null
   };
 
+  /**
+   * Shows the scrubber-bar by moving the mouse on the screen.
+   */
   function showControls() {
     let scrubber = document.querySelector(".scrubber-bar");
     let eventOptions = {
       "bubbles": true,
-      "button": 0,
-      "currentTarget": scrubber
+      "button": 0
     };
     scrubber.dispatchEvent(new MouseEvent("mousemove", eventOptions));
   };
@@ -46,8 +53,10 @@ let netflixSeeker = function () {
     showControls();
 
     let scrubber = document.querySelector(".scrubber-bar");
-    let mouseX = Math.round(scrubber.getBoundingClientRect().x + scrubber.clientWidth * seconds / getDuration());
-    let mouseY = Math.round(scrubber.getBoundingClientRect().y + scrubber.clientHeight / 2);
+    let mouseX = Math.round(scrubber.getBoundingClientRect().x +
+                            scrubber.clientWidth * seconds / getDuration());
+    let mouseY = Math.round(scrubber.getBoundingClientRect().y +
+                            scrubber.clientHeight / 2);
     let eventOptions = {
       "bubbles": true,
       "button": 0,
@@ -66,8 +75,10 @@ let netflixSeeker = function () {
   function incrementSeek(seconds) {
     let currentTime = getCurrentTime();
     let toTime = currentTime + seconds;
+
+    // user is probably spamming seek and the player hasn't had a
+    // chance to update yet
     if (currentTime === seekTime.from) {
-      // user is probably spamming seek and the player hasn't had a chance to update yet
       toTime = seekTime.to + seconds;
     }
     seekTime = {
