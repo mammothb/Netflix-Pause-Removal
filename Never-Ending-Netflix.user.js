@@ -3,7 +3,7 @@
 // @namespace   *://www.netflix.com
 // @include     http://www.netflix.com/*
 // @include     https://www.netflix.com/*
-// @version     1.6.0
+// @version     1.7.0
 // @grant       none
 // @description Automatically clicks "Continue Playing", "Skip Intro",
 //              and "Play Next Episode"
@@ -16,18 +16,76 @@ function clickIfFound(button) {
   if (button) button.click();
 }
 
+function hideIfVisible(element) {
+  try {
+    if (element.style.display != "none") element.style.display = "none";
+  } catch (e) {}
+}
+
 setInterval(function () {
   clickIfFound(document.querySelector("[aria-label='Skip Intro']"));
   clickIfFound(document.querySelector("[aria-label='Continue Playing']"));
   clickIfFound(document.querySelector(
       "[class='WatchNext-still-hover-container']"));
   clickIfFound(document.querySelector("[aria-label^='Next episode in']"));
+  hideIfVisible(document.querySelector("[class='billboard-row']"));
+  hideIfVisible(document.querySelector("div.mainView [role='presentation']"));
+  hideIfVisible(document.querySelector("div.mainView > div > div[class^='jawBoneContainer']"));
+  hideBlacklistTitles();
 }, 33);
+
+/*********************************************************************
+ *    Implement additional hide blacklisted title functionality
+ *********************************************************************/
+function addTitleToBlacklist(event) {
+  if (event.target && event.target.parentNode.classList.contains(
+      "thumb-down-container")) {
+    let node = event.target.parentNode;
+    while (node && (!node.classList || !node.classList.contains("jawBone"))) {
+      node = node.parentNode;
+    }
+    if (node) addToBlacklist(node.getElementsByClassName("logo")[0].alt);
+  }
+}
+
+function setBlacklist(array) {
+  localStorage.setItem("blacklist", JSON.stringify(array));
+}
+
+function getBlacklist() {
+  return JSON.parse(localStorage.getItem("blacklist"));
+}
+
+function addToBlacklist(title) {
+  let blacklist = getBlacklist();
+  blacklist.push(title);
+  localStorage.setItem("blacklist", JSON.stringify(
+    Array.from(new Set(blacklist))));
+}
+
+function hideBlacklistTitles() {
+  const blacklist = getBlacklist();
+  const allSliderItems = Array.from(document.querySelectorAll(
+    "div[class*='slider-item-']"));
+  const emptySliderItems = Array.from(document.querySelectorAll(
+    "div[class$='slider-item-']"));
+  const sliderItems = allSliderItems.filter(
+    n => !emptySliderItems.includes(n));
+  for (const item of sliderItems) {
+    if (blacklist.includes(item.getElementsByTagName("a")[0].getAttribute(
+        "aria-label"))) {
+      item.style.display = "none";
+    }
+  }
+}
+
+if (!localStorage.getItem("blacklist")) setBlacklist([]);
+document.addEventListener("click", addTitleToBlacklist);
 
 /*********************************************************************
  *            Implement additional seek functionality
  *********************************************************************/
-let netflixSeeker = function () {
+let netflixSeeker = function() {
   // used when the user is spamming ctrl/shift+arrow
   let seekTime = {
     "from": null,
