@@ -3,7 +3,7 @@
 // @namespace   *://www.netflix.com
 // @include     http://www.netflix.com/*
 // @include     https://www.netflix.com/*
-// @version     1.7.0
+// @version     1.7.1
 // @grant       none
 // @description Automatically clicks "Continue Playing", "Skip Intro",
 //              and "Play Next Episode"
@@ -65,17 +65,15 @@ function addToBlacklist(title) {
 
 function hideBlacklistTitles() {
   const blacklist = getBlacklist();
-  const allSliderItems = Array.from(document.querySelectorAll(
+  const sliderItems = Array.from(document.querySelectorAll(
     "div[class*='slider-item-']"));
-  const emptySliderItems = Array.from(document.querySelectorAll(
-    "div[class$='slider-item-']"));
-  const sliderItems = allSliderItems.filter(
-    n => !emptySliderItems.includes(n));
   for (const item of sliderItems) {
-    if (blacklist.includes(item.getElementsByTagName("a")[0].getAttribute(
+    try {
+      if (blacklist.includes(item.getElementsByTagName("a")[0].getAttribute(
         "aria-label"))) {
-      item.style.display = "none";
-    }
+        item.style.display = "none";
+      }
+    } catch (e) {}
   }
 }
 
