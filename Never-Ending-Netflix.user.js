@@ -3,7 +3,7 @@
 // @namespace   *://www.netflix.com
 // @include     http://www.netflix.com/*
 // @include     https://www.netflix.com/*
-// @version     1.7.1
+// @version     1.8.0
 // @grant       none
 // @description Automatically clicks "Continue Playing", "Skip Intro",
 //              and "Play Next Episode"
@@ -14,6 +14,19 @@
  */
 function clickIfFound(button) {
   if (button) button.click();
+}
+
+/**
+ * Have to send pointer event instead of normal clicking for the new next episode button
+ */
+function sendPointerEventIfFound(button) {
+  if (button) {
+    Object.keys(button).forEach((key) => {
+      if (key.startsWith("__reactInternalInstance$")) {
+        button[key].memoizedProps.onPointerDown(new PointerEvent("click"));
+      }
+    });
+  }
 }
 
 function hideIfVisible(element) {
@@ -28,6 +41,7 @@ setInterval(function () {
   clickIfFound(document.querySelector(
       "[class='WatchNext-still-hover-container']"));
   clickIfFound(document.querySelector("[aria-label^='Next episode in']"));
+  sendPointerEventIfFound(document.querySelector("button[data-uia='next-episode-seamless-button']"));
   hideIfVisible(document.querySelector("[class='billboard-row']"));
   hideIfVisible(document.querySelector("div.mainView [role='presentation']"));
   hideIfVisible(document.querySelector("div.mainView > div > div[class^='jawBoneContainer']"));
